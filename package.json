@@ -1,0 +1,24 @@
+{
+  "name": "data-analyzer",
+  "version": "1.0.0",
+  "description": "javascript tool to analyze data in large volumes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/selenajosephine/data-analyzer.git"
+  },
+  "keywords": [
+    "data-mining",
+    "data-analyzer",
+    "file-processor"
+  ],
+  "author": "Selena Josephine Ponmani D",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/selenajosephine/data-analyzer/issues"
+  },
+  "homepage": "https://github.com/selenajosephine/data-analyzer#readme"
+}
