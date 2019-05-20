@@ -1,4 +1,7 @@
 const readline = require('readline');
+const fs = require('fs')
+
+
 
 const Ask = (questions) => {
     return new Promise(async resolve => {
@@ -9,6 +12,15 @@ const Ask = (questions) => {
 }
 
 
+const readFile = (path) =>{
+    return new Promise((resolve,reject) =>{
+        fs.readFile(path,{encoding:'utf8'}, (err, data)=>{
+            err?reject(err):resolve(data);
+        });
+    });
+}
+
 module.exports = {
-    askQuestions: Ask
+    askQuestions: Ask,
+    readFile: readFile
 }
