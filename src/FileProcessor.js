@@ -29,15 +29,16 @@ const processFile = (file) => {
         var data = titleTemp;
         data.shift();
         Ask("Do you have " + title.length + " columns?  (y/n)   ").then(response => {
-            if (response == "Y" || response == "y"){
-                var jsonData= convertToJson(data, title)
-
+            if (response == "Y" || response == "y") {
+                var jsonData = convertToJson(data, title)
+                return jsonData
             }
-                
             else
                 Ask("Then how many columns are there?  ").then(columncount => {
                     console.log(columncount)
                 })
+        }).then(jsonData => {
+            console.log(jsonData)
         })
     }
     catch (err) {
@@ -45,13 +46,13 @@ const processFile = (file) => {
     }
 }
 
+// method to convert txt to json
 var convertToJson = (data, title) => {
     var json = new Array();
     data.forEach(singleRow => {
         var oneRow = singleRow.trim().split('\t')
-        console.log(oneRow)
         var temp = []
-        for (var i = 0; i < oneRow.length; i++) 
+        for (var i = 0; i < oneRow.length; i++)
             temp[title[i]] = oneRow[i];
         json.push(temp)
     })
