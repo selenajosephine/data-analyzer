@@ -57,35 +57,24 @@ var convertToJson = (data, title) => {
     return json
 }
 
-// method to decide which columns the result should be grouped by
+
 var sortData = jsonData => {
     var groupBy = [];
     groupBy = groupByColumns()
 }
 
-
-// method to decide which column it should be grouped by 
 var groupByColumns = () => {
     console.log("Your columns are")
     title.forEach((value, index) => {
         console.log(`${index + 1}. ${value}`)
     })
-    Ask("Which columns do you want to group by? Enter the column number separated by commas (,)  ").then(response => {
+    Ask("Which columns do you want to group by? Enter the column number separated by commas (,)  ").then(response =>{
         var temp = response.split(",")
-        var flag = true;
-        temp.forEach(value => {
-            if (value < title.length && value > 0) return
-            else flag = false
-        })
-        if (flag) {
-            for (var i = 0; i < temp.length; i++)   groupby.push(title[temp[i] - 1])
-            return groupby;
+        for(var i = 0; i<temp.length;i++)
+        {
+            groupby.push(title[temp[i]-1])
         }
-
-        // TO-DO
-        else {
-            console.log(`invalid column number`)
-        }
+        
     })
 }
 
