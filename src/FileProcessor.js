@@ -6,8 +6,10 @@ let title = []
 // method to read input from user
 const Ask = (questions) => {
     return new Promise(async resolve => {
-        let rl = readline.createInterface(process.stdin, process.stdout);
-        let results = await new Promise(resolve => { rl.question(questions, answer => resolve(answer)) })
+        let rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: false });
+        let results = await new Promise(resolve => {
+            rl.question(questions, answer => resolve(answer))
+        })
         resolve(results)
     })
 }
@@ -28,13 +30,34 @@ const processFile = (file) => {
         title = titleTemp[0].split("\t")
         var data = titleTemp;
         data.shift()
-        
-        console.log("Do you have "+title.length+ " columns?  (y/n)")
+
+        Ask("Do you have " + title.length + " columns?  (y/n)").then(response => {
+            console.log(`inside response chunk`)
+            if (response == "Y" || response == "y") {
+                var jsonData = convertToJson(data, title)
+                return jsonData
+            }
+            else Ask("Then how many columns are there?  ").then(columncount => { console.log(columncount) })
+        }).then(jsonData => { console.log(jsonData) })
     }
     catch (err) {
         console.log(err)
     }
 }
+
+// method to convert txt to json
+var convertToJson = (data, title) => {
+    var json = new Array();
+    data.forEach(singleRow => {
+        var oneRow = singleRow.trim().split('\t')
+        var temp = []
+        for (var i = 0; i < oneRow.length; i++)
+            temp[title[i]] = oneRow[i];
+        json.push(temp)
+    })
+    return json
+}
+
 
 module.exports = {
     askQuestions: Ask,
