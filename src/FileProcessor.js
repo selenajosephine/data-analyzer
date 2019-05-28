@@ -57,24 +57,42 @@ var convertToJson = (data, title) => {
     return json
 }
 
-
+// method to get the group by params and group it
 var sortData = jsonData => {
-    var groupBy = [];
-    groupBy = groupByColumns()
+    groupByColumns().then(columnsToGroupBy => {
+        console.log(jsonData)
+        
+    })
 }
 
 var groupByColumns = () => {
-    console.log("Your columns are")
-    title.forEach((value, index) => {
-        console.log(`${index + 1}. ${value}`)
-    })
-    Ask("Which columns do you want to group by? Enter the column number separated by commas (,)  ").then(response =>{
-        var temp = response.split(",")
-        for(var i = 0; i<temp.length;i++)
-        {
-            groupby.push(title[temp[i]-1])
-        }
-        
+    return new Promise(async resolve => {
+        console.log("Your columns are")
+        // map all the columns to display index-column name
+        title.forEach((value, index) => console.log(`${index + 1}. ${value}`))
+        // wait for user input on what column you want to group by
+        Ask("Which columns do you want to group by? Enter the column number separated by commas (,)  ").then(response => {
+            var temp = response.split(",")
+            // flag to check if it is the group by values are correct
+            var flag = true;
+            // check if the input value is lower than number of columns (index)
+            temp.forEach(value => {
+                if (value < title.length && value > 0) return
+                else flag = false;
+            })
+            // if the column number is permissible
+            if (flag) {
+                for (var i = 0; i < temp.length; i++)
+                    //push the column names to be grouped by to var
+                    groupby.push(title[temp[i] - 1])
+                resolve(groupby)
+            }
+
+            // TO-DO
+            else {
+                console.log(`invalid column number`)
+            }
+        })
     })
 }
 
