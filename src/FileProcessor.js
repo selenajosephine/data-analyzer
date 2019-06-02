@@ -1,5 +1,6 @@
 const readline = require('readline');
 const fs = require('fs')
+const {yearAndMonthFormatter} = require('./Util.js')
 
 let title = [];
 let groupby = [];
@@ -60,8 +61,8 @@ var convertToJson = (data, title) => {
 // method to get the group by params and group it
 var sortData = jsonData => {
     groupByColumns().then(columnsToGroupBy => {
-        console.log(jsonData)
-        
+        mapperFunction(jsonData, columnsToGroupBy[0])
+
     })
 }
 
@@ -94,6 +95,30 @@ var groupByColumns = () => {
             }
         })
     })
+}
+
+
+const mapperFunction = (objectArray, keyValue) => {
+    var map = new Map();
+    objectArray.forEach((item) => {
+        map = groupAction(item, keyValue, map, false);
+    })
+    console.log(map)
+    var resultHashMap = []//groupByStatus(map);
+    return resultHashMap
+}
+
+var groupAction = (item, keyValue, map, flag) => {
+    if (flag)
+        key = yearAndMonthFormatter(item[`${keyValue}`])
+    else
+        key = keyValue;
+    const collection = map.get(key)
+    if (!collection)
+        map.set(key, [item])
+    else
+        collection.push(item);
+    return map;
 }
 
 module.exports = {
