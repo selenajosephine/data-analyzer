@@ -1,6 +1,6 @@
 var yearAndMonthFormatter = (value) =>{
     console.log("Inside formater")
-    return "";
+    return value;
 }
 
 module.exports = {
