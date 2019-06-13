@@ -68,7 +68,7 @@ var convertToJson = (data, title) => {
     data.forEach(singleRow => {
         // remove the whitespace with trim to avoid \r and split it 
         var oneRow = singleRow.trim().split('\t')
-        var temp = []
+        var temp = {}
         // for every item in the row, map to property of json object
         for (var i = 0; i < oneRow.length; i++)  temp[title[i]] = oneRow[i];
         // add temp to json object
@@ -130,21 +130,23 @@ const mapperFunction = (objectArray, keyValue) => {
 }
 
 var groupByStatus = (datamap) => {
+    console.log(datamap)
     var result = new Map();
-    for ([key, value] of datamap.entries()) {
+    for ([key, value] of datamap) {
         var map = new Map();
+        var temp = key
         value.forEach(singleParam => {
-            data = groupAction(singleParam, singleParam[groupby[1]], map, false)
-            result.set(key, data);
+            map = groupAction(singleParam, singleParam[groupby[1]], map, false)
         })
+        result.set(temp, map);
     }
-    
     var finalResult = new Array();
     for ([key, value] of result) {
         value.forEach(singleParam => {
             var obj = {};
             obj[groupby[0]] = key
-            obj[groupby[1]] = singleParam.length
+            obj[groupby[1]] = singleParam[0][groupby[1]]
+            obj["count"] = singleParam.length
 
             //console.log(singleParam)
 
