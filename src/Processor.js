@@ -1,9 +1,11 @@
 const readline = require('readline');
 const fs = require('fs')
-const { yearAndMonthFormatter } = require('./Util.js')
-
+const { yearAndMonthFormatter } = require('./Util')
+const exporter = require('./Reporter')
+const validate = require('./Validator')
 let title = [];
 let groupby = [];
+var filename = "";
 
 // method to read input from user
 const Ask = (questions) => {
@@ -19,9 +21,10 @@ const Ask = (questions) => {
 
 // method to read the file
 const readFile = (path) => {
+    filename = path
     return new Promise((resolve, reject) => {
         // read the file with utf8; and wait for the data to resolve
-        fs.readFile(path, { encoding: 'utf8' }, (err, data) => { err ? reject(err) : resolve(data); });
+        fs.readFile(path, { encoding: 'utf8' }, (err, data) => { err ? reject(err) : resolve(data) });
     });
 }
 
@@ -47,7 +50,7 @@ const processFile = (file) => {
                 // TO-DO
                 else Ask("Then how many columns are there?  ")
                     .then(columncount => {
-                        console.log(columncount)
+                        var columncountvalidation = validate.checkColumnCount(columncount, title)
                     })
             }).then(jsonData => {
                 // method to sort all the data
@@ -80,7 +83,8 @@ var convertToJson = (data, title) => {
 // method to get the group by params and group it
 var sortData = jsonData => {
     groupByColumns().then(columnsToGroupBy => {
-        mapperFunction(jsonData, columnsToGroupBy[0])
+        const resultJson = mapperFunction(jsonData, columnsToGroupBy[0]);
+        exporter.exportDataToJson(resultJson, filename)
     })
 }
 
@@ -90,8 +94,9 @@ var groupByColumns = () => {
         console.log("Your columns are")
         // map all the columns to display index-column name
         title.forEach((value, index) => console.log(`${index + 1}. ${value}`))
+        console.log("Which columns do you want to group by?")
         // wait for user input on what column you want to group by
-        Ask("Which columns do you want to group by? Enter the column number separated by commas (,)  ")
+        Ask("Enter the column number separated by commas in the order of grouping (,)  ")
             .then(response => {
                 var temp = response.split(",")
                 // flag to check if it is the group by values are correct
@@ -130,40 +135,45 @@ const mapperFunction = (objectArray, keyValue) => {
 }
 
 var groupByStatus = (datamap) => {
-    console.log(datamap)
     var result = new Map();
-    for ([key, value] of datamap) {
-        var map = new Map();
-        var temp = key
-        value.forEach(singleParam => {
-            map = groupAction(singleParam, singleParam[groupby[1]], map, false)
-        })
-        result.set(temp, map);
-    }
+    for (var i = 1; i < groupby.length; i++)
+        // iterates to do the second level of grouping
+        iterativelyGroup(datamap, result, groupby[i]);
+    // iterates to keep the grouped data in JSON
     var finalResult = new Array();
     for ([key, value] of result) {
         value.forEach(singleParam => {
             var obj = {};
             obj[groupby[0]] = key
-            obj[groupby[1]] = singleParam[0][groupby[1]]
+            for (var i = 1; i < groupby.length; i++) obj[groupby[i]] = singleParam[0][groupby[i]]
             obj["count"] = singleParam.length
-
-            //console.log(singleParam)
-
             finalResult.push(obj)
         })
     }
-    console.log("Final Result is ")
-    console.log(finalResult)
-    
     return finalResult
+}
+
+// method called when there are more than one groupingby objects
+var iterativelyGroup = (datamap, result, param) => {
+    for ([key, value] of datamap) {
+        var map = new Map();
+        var temp = key;
+        value.forEach(singleParam => {
+            map = groupAction(singleParam, singleParam[param], map, false);
+        });
+        result.set(temp, map);
+    }
 }
 
 // group action to decide if its a new object or an existing key
 var groupAction = (item, keyValue, map, flag) => {
+    // checks if it is a date and month formatter
     flag ? key = yearAndMonthFormatter(item[`${keyValue}`]) : key = keyValue;
+    // takes the key's object from the collection
     const collection = map.get(key)
+    // if the obj is already present, adds the item, otherwise sets the item in map
     collection ? collection.push(item) : map.set(key, [item])
+    // returns the map object
     return map;
 }
 
@@ -172,3 +182,4 @@ module.exports = {
     readFile: readFile,
     processFile: processFile
 }
+

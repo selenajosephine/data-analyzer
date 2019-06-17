@@ -1,4 +1,4 @@
-const { askQuestions, readFile,processFile } = require('./FileProcessor');
+const { askQuestions, readFile,processFile } = require('./Processor');
 const filelocationQuestion = 'Enter your file location  '
 
 askQuestions(filelocationQuestion)
@@ -8,7 +8,6 @@ askQuestions(filelocationQuestion)
             readFile(filename)
                 .then(file =>processFile(file))
                 .catch(err =>{console.log(`Check the file location`);process.exit(1);})
-                
         }
         else{
             console.log(`Only .txt and .csv files are accepted`)
