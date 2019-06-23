@@ -3,6 +3,16 @@ var yearAndMonthFormatter = (value) =>{
     return value;
 }
 
+var questionMapper = (code)=>{
+
+}
+
+var errorMapper = (code) =>{
+
+}
+
 module.exports = {
-    yearAndMonthFormatter
+    yearAndMonthFormatter, 
+    errorMapper, 
+    questionMapper
 }
