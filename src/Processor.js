@@ -53,6 +53,7 @@ const processFile = (file) => {
                         processNewColumnCount(data, resolve);
                     else {
                         console.log("Invalid Response")
+                        reject(err)
                         process.exit()
                     }
                 })
@@ -77,7 +78,8 @@ var convertToJson = (data, title) => {
         var oneRow = singleRow.trim().split('\t')
         var temp = {}
         // for every item in the row, map to property of json object
-        for (var i = 0; i < oneRow.length; i++)  temp[title[i]] = oneRow[i];
+        for (var i = 0; i < oneRow.length; i++)  
+            temp[title[i]] = oneRow[i];
         // add temp to json object
         json.push(temp)
     })

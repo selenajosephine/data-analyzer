@@ -1,4 +1,5 @@
 const { askQuestions, readFile, processFile } = require('./Processor');
+const validate = require('./Validator')
 const filelocationQuestion = 'Enter your file location  '
 
 var start = () => {
@@ -7,9 +8,14 @@ var start = () => {
         .then(filename => {
             if (filename.includes(".txt") || filename.includes(".csv")) {
                 readFile(filename)
-                    .then(file =>
-                        processFile(file)
-                    )
+                    .then(file => {
+                        if(validate.checkFileExists(file)){
+                            processFile(file)
+                        }else{
+                            console.log("File Empty")
+                            process.exit();
+                        }
+                    })
                     .catch(err => {
                         console.log(`Check the file location`);
                         process.exit();
