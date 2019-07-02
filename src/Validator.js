@@ -17,39 +17,36 @@ var checkFileExists = (file) => {
 }
 
 var askFirstTime = true;
-var checkIfItIsADate = (value) => {
+var checkIfItIsADate = (value, dateformat) => {
     if (value.includes("-") || value.includes("/")) {
-        console.log(value)
         if (askFirstTime) {
-            askQuestion("Enter the date format: ").then(response => {
-                console.log("inside response")
-                resolve(response)
-            })
-                .catch(err => {
-                    console.log("Error reading date format")
-                })
+            if (value.includes("-") && !value.includes("/") && dateformat.includes("-")) {
+                datetypevalidation(value, "-", dateformat);
+            }
+            else if (value.includes("/") && !value.includes("-") && dateformat.includes("/")) {
+                datetypevalidation(value, "/", dateformat)
+            }
+            else {
+                console.log("Check the Date format")
+                process.exit();
+            }
+            askFirstTime=false;
         }
         else {
 
         }
     }
-    else {
-        console.log("Date format does not match")
+}
+
+
+var datetypevalidation = (value, delimiter, dateformat) =>{
+    if((value.indexOf(delimiter)==dateformat.indexOf(delimiter)) && (value[1].length == dateformat[1].length) ){
+        console.log("all conditions match")
+    }
+    else{
+        console.log("Check the date format")
+        process.exit()
     }
 }
 
-// method to read input from user
-function askQuestion(query) {
-    var rl = null;
-    rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      terminal: false 
-    });
-  
-    return new Promise(resolve => rl.question(query, ans => {
-      rl.close();
-      resolve(ans);
-    }))
-  } 
 module.exports = { checkColumnCount, checkFileExists, checkIfItIsADate }

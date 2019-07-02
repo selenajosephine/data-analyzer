@@ -159,12 +159,12 @@ var columntitlenumbermapping = (response) => {
 // method where all the mapping takes place 
 const mapperFunction = (objectArray, keyValue) => {
     var flag = false;
-    //flag = dateFlag(objectArray[0],keyValue, title)
+    flag = dateFlag(objectArray[0],keyValue, title, dateformat)
     var map = new Map();
     // group object by key [ group by first group by object]
     objectArray.forEach((item) =>
         // call the group action 
-        map = groupAction(item, item[keyValue], map)
+        map = groupAction(item, item[keyValue], map,flag)
     )
     // group all the column names
     var resultHashMap = groupByColumnNames(map);

@@ -6,10 +6,10 @@ var yearAndMonthFormatter = (value) => {
     return value;
 }
 
-var dateFlag = (firstRow, key, columns) => {
+var dateFlag = (firstRow, key, columns,dateformat) => {
     return columns.forEach(value => {
         if (key = value) {
-            if (validator.checkIfItIsADate(firstRow[value])) {s
+            if (validator.checkIfItIsADate(firstRow[value], dateformat) ){
                 return true
             }
         }
