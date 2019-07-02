@@ -1,11 +1,12 @@
 const readline = require('readline');
 const fs = require('fs')
-const { yearAndMonthFormatter } = require('./Util')
+const { yearAndMonthFormatter, dateFlag} = require('./Util')
 const exporter = require('./Reporter')
 const validate = require('./Validator')
 let title = [];
 let groupby = [];
 var filename = "";
+var dateformat="";
 
 // method to read input from user
 const Ask = (questions) => {
@@ -37,32 +38,19 @@ const processFile = (file) => {
         title = titleTemp[0].trim().split("\t")
         var data = titleTemp;
         data.shift()
-        // get user input on number of columns available
-        Ask("Do you have " + title.length + " columns?  (y/n)  ")
-            .then(response => {
-                return new Promise((resolve, reject) => {
-                    // check if the response is valid- y|Y
-                    if (response == "Y" || response == "y") {
-                        // convert data to Json if it is valid
-                        var jsonData = convertToJson(data, title)
-                        // method returns json format data 
-                        resolve(jsonData);
-                    }
-                    // TO-DO
-                    else if (response == "N" || response == "n")
-                        processNewColumnCount(data, resolve);
-                    else {
-                        console.log("Invalid Response")
-                        reject(err)
-                        process.exit()
-                    }
-                })
-            }).then(jsonData => {
-                // method to sort all the data
-                sortData(jsonData)
+        console.log("Enter the date format used in the file")
+        Ask("Press enter if it is not applicable  ").then(response=>{
+            return new Promise((resolve, reject)=>{
+                String(response)
+                if(response!=null && response != "/n" && (response.includes("-")||response.includes("/"))){
+                    dateformat = response
+                }
+                getColumnsFromUser(data);
             })
+        })
+        // get user input on number of columns available
+        
     }
-
     catch (err) {
         console.log(err)
     }
@@ -78,7 +66,7 @@ var convertToJson = (data, title) => {
         var oneRow = singleRow.trim().split('\t')
         var temp = {}
         // for every item in the row, map to property of json object
-        for (var i = 0; i < oneRow.length; i++)  
+        for (var i = 0; i < oneRow.length; i++)
             temp[title[i]] = oneRow[i];
         // add temp to json object
         json.push(temp)
@@ -106,8 +94,11 @@ var processNewColumnCount = (data, resolve) => {
 
 // method to get the group by params and group it
 var sortData = jsonData => {
+    // group by columns
     groupByColumns().then(columnsToGroupBy => {
+        // calls map function
         const resultJson = mapperFunction(jsonData, columnsToGroupBy[0]);
+        // export the result to json
         exporter.exportDataToJson(resultJson, filename)
     })
 }
@@ -156,7 +147,7 @@ var columntitlenumbermapping = (response) => {
     // check if the input value is lower than number of columns (index)
     temp.forEach(value => {
         // if no of titles are valid, then return
-        if (value < title.length && value > 0)
+        if (value < title.length+1 && value > 0)
             return;
         // if no of titles are not false
         else
@@ -167,11 +158,15 @@ var columntitlenumbermapping = (response) => {
 
 // method where all the mapping takes place 
 const mapperFunction = (objectArray, keyValue) => {
+    var flag = false;
+    //flag = dateFlag(objectArray[0],keyValue, title)
     var map = new Map();
     // group object by key [ group by first group by object]
     objectArray.forEach((item) =>
-        map = groupAction(item, item[keyValue], map, false)
+        // call the group action 
+        map = groupAction(item, item[keyValue], map)
     )
+    // group all the column names
     var resultHashMap = groupByColumnNames(map);
     return resultHashMap
 }
@@ -226,8 +221,31 @@ var iterativelyGroup = (datamap, result, param) => {
 module.exports = {
     askQuestions: Ask,
     readFile: readFile,
-    processFile: processFile
+    processFile: processFile,
+   
 }
-
-
+function getColumnsFromUser(data) {
+    Ask("Do you have " + title.length + " columns?  (y/n)  ")
+        .then(response => {
+            return new Promise((resolve, reject) => {
+                // check if the response is valid- y|Y
+                if (response == "Y" || response == "y") {
+                    // convert data to Json if it is valid
+                    var jsonData = convertToJson(data, title);
+                    // method returns json format data 
+                    resolve(jsonData);
+                }
+                // TO-DO
+                else if (response == "N" || response == "n")
+                    processNewColumnCount(data, resolve);
+                else {
+                    console.log("Invalid Response");
+                    process.exit();
+                }
+            });
+        }).then(jsonData => {
+            // method to sort all the data
+            sortData(jsonData);
+        });
+}
 
