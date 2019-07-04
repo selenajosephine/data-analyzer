@@ -1,12 +1,12 @@
 const readline = require('readline');
 const fs = require('fs')
-const { yearAndMonthFormatter, dateFlag} = require('./Util')
+const { yearAndMonthFormatter, dateFlag } = require('./Util')
 const exporter = require('./Reporter')
 const validate = require('./Validator')
 let title = [];
 let groupby = [];
 var filename = "";
-var dateformat="";
+var dateformat = "";
 
 // method to read input from user
 const Ask = (questions) => {
@@ -34,22 +34,28 @@ const processFile = (file) => {
     try {
         // split based on the first \n for title
         titleTemp = file.split("\n")
-        // remove white spaces to avoid '\r'
-        title = titleTemp[0].trim().split("\t")
+
+        if (filename.endsWith(".txt")) {
+            // remove white spaces to avoid '\r'
+            title = titleTemp[0].trim().split("\t")
+        }
+        else if(filename.endsWith(".csv")){
+            title = titleTemp[0].trim().split(",")
+        }
         var data = titleTemp;
         data.shift()
         console.log("Enter the date format used in the file")
-        Ask("Press enter if it is not applicable  ").then(response=>{
-            return new Promise((resolve, reject)=>{
+        Ask("Press enter if it is not applicable  ").then(response => {
+            return new Promise((resolve, reject) => {
                 String(response)
-                if(response!=null && response != "/n" && (response.includes("-")||response.includes("/"))){
+                if (response != null && response != "/n" && (response.includes("-") || response.includes("/"))) {
                     dateformat = response
                 }
                 getColumnsFromUser(data);
             })
         })
         // get user input on number of columns available
-        
+
     }
     catch (err) {
         console.log(err)
@@ -62,8 +68,12 @@ var convertToJson = (data, title) => {
     var json = new Array();
     // iterate through each row divided by \n
     data.forEach(singleRow => {
-        // remove the whitespace with trim to avoid \r and split it 
-        var oneRow = singleRow.trim().split('\t')
+        var oneRow
+        if(filename.endsWith(".txt"))
+            // remove the whitespace with trim to avoid \r and split it 
+             oneRow = singleRow.trim().split('\t')
+        else if(filename.endsWith(".csv"))
+             oneRow = singleRow.trim().split(",")
         var temp = {}
         // for every item in the row, map to property of json object
         for (var i = 0; i < oneRow.length; i++)
@@ -147,7 +157,7 @@ var columntitlenumbermapping = (response) => {
     // check if the input value is lower than number of columns (index)
     temp.forEach(value => {
         // if no of titles are valid, then return
-        if (value < title.length+1 && value > 0)
+        if (value < title.length + 1 && value > 0)
             return;
         // if no of titles are not false
         else
@@ -159,12 +169,12 @@ var columntitlenumbermapping = (response) => {
 // method where all the mapping takes place 
 const mapperFunction = (objectArray, keyValue) => {
     var flag = false;
-    flag = dateFlag(objectArray[0],keyValue, title, dateformat)
+    flag = dateFlag(objectArray[0], keyValue, title, dateformat)
     var map = new Map();
     // group object by key [ group by first group by object]
     objectArray.forEach((item) =>
         // call the group action 
-        map = groupAction(item, item[keyValue], map,flag)
+        map = groupAction(item, item[keyValue], map, flag)
     )
     // group all the column names
     var resultHashMap = groupByColumnNames(map);
@@ -194,11 +204,13 @@ var groupByColumnNames = (datamap) => {
     var finalResult = new Array();
     for ([key, value] of result) {
         value.forEach(singleParam => {
-            var obj = {};
-            obj[groupby[0]] = key
-            for (var i = 1; i < groupby.length; i++) obj[groupby[i]] = singleParam[0][groupby[i]]
-            obj["count"] = singleParam.length
-            finalResult.push(obj)
+            if (singleParam!=null){
+                var obj = {};
+                obj[groupby[0]] = key
+                for (var i = 1; i < groupby.length; i++) obj[groupby[i]] = singleParam[0][groupby[i]]
+                obj["count"] = singleParam.length
+                finalResult.push(obj)
+            }
         })
     }
     return finalResult
@@ -222,9 +234,9 @@ module.exports = {
     askQuestions: Ask,
     readFile: readFile,
     processFile: processFile,
-   
+
 }
-function getColumnsFromUser(data) {
+var getColumnsFromUser = (data) => {
     Ask("Do you have " + title.length + " columns?  (y/n)  ")
         .then(response => {
             return new Promise((resolve, reject) => {

@@ -14,13 +14,18 @@ var exportDataToJson = (json, filename) => {
     csv += "\n";
     // iterate through json object
     for (var item in json) {
-        csv += Object.values(json[item]).join(",");
-        csv += "\n";
+        if (json[item] != "") {
+            csv += Object.values(json[item]).join(",");
+            csv += "\n";
+        }
     }
     // write file 
     fs.writeFile(filename, csv, (err, data) => {
-        if (err)
-            console.log("Unsupported file operation")
+        if (err) {
+            console.log("Unsupported file operation.")
+            console.log("Check if the file is open.")
+        }
+
         console.log("File can be found at " + filename)
         process.exit()
     })
