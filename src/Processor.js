@@ -1,6 +1,6 @@
 const readline = require('readline');
 const fs = require('fs')
-const { yearAndMonthFormatter, dateFlag } = require('./Util')
+const { yearAndMonthFormatter, dateFlag, checkIfFieldIsADate } = require('./Util')
 const exporter = require('./Reporter')
 const validate = require('./Validator')
 let title = [];
@@ -39,11 +39,12 @@ const processFile = (file) => {
             // remove white spaces to avoid '\r'
             title = titleTemp[0].trim().split("\t")
         }
-        else if(filename.endsWith(".csv")){
+        else if (filename.endsWith(".csv")) {
             title = titleTemp[0].trim().split(",")
         }
         var data = titleTemp;
-        data.shift()
+        data.shift();
+        
         console.log("Enter the date format used in the file")
         Ask("Press enter if it is not applicable  ").then(response => {
             return new Promise((resolve, reject) => {
@@ -69,11 +70,11 @@ var convertToJson = (data, title) => {
     // iterate through each row divided by \n
     data.forEach(singleRow => {
         var oneRow
-        if(filename.endsWith(".txt"))
+        if (filename.endsWith(".txt"))
             // remove the whitespace with trim to avoid \r and split it 
-             oneRow = singleRow.trim().split('\t')
-        else if(filename.endsWith(".csv"))
-             oneRow = singleRow.trim().split(",")
+            oneRow = singleRow.trim().split('\t')
+        else if (filename.endsWith(".csv"))
+            oneRow = singleRow.trim().split(",")
         var temp = {}
         // for every item in the row, map to property of json object
         for (var i = 0; i < oneRow.length; i++)
@@ -98,7 +99,11 @@ var processNewColumnCount = (data, resolve) => {
             // proceed processing if it is invalid
             var jsonData = convertToJson(data, title);
             resolve(jsonData);
-        });
+        })
+        .catch((err)=>{
+            console.log("Check the value")
+            process.exit()
+        })
 }
 
 
@@ -169,7 +174,8 @@ var columntitlenumbermapping = (response) => {
 // method where all the mapping takes place 
 const mapperFunction = (objectArray, keyValue) => {
     var flag = false;
-    flag = dateFlag(objectArray[0], keyValue, title, dateformat)
+    if((objectArray[0][keyValue]).includes("-")||(objectArray[0][keyValue]).includes("/"))
+        flag = dateFlag(objectArray[0], keyValue, title, dateformat)
     var map = new Map();
     // group object by key [ group by first group by object]
     objectArray.forEach((item) =>
@@ -183,8 +189,14 @@ const mapperFunction = (objectArray, keyValue) => {
 
 // group action to decide if its a new object or an existing key
 var groupAction = (item, keyValue, map, flag) => {
-    // checks if it is a date and month formatter
-    flag ? key = yearAndMonthFormatter(item[`${keyValue}`]) : key = keyValue;
+    var key;
+    try {
+        // checks if it is a date and month formatter
+        flag ? key = yearAndMonthFormatter(item[`${keyValue}`], dateformat) : key = keyValue;
+    }
+    catch (err) {
+        console.log(err)
+    }
     // takes the key's object from the collection
     const collection = map.get(key)
     // if the obj is already present, adds the item, otherwise sets the item in map
@@ -204,7 +216,7 @@ var groupByColumnNames = (datamap) => {
     var finalResult = new Array();
     for ([key, value] of result) {
         value.forEach(singleParam => {
-            if (singleParam!=null){
+            if (singleParam != null) {
                 var obj = {};
                 obj[groupby[0]] = key
                 for (var i = 1; i < groupby.length; i++) obj[groupby[i]] = singleParam[0][groupby[i]]
@@ -218,11 +230,21 @@ var groupByColumnNames = (datamap) => {
 
 // method called when there are more than one groupingby objects
 var iterativelyGroup = (datamap, result, param) => {
+    var flag = false;
+    var val  = Array.from(datamap)[0]
+    var [key, value] = val;
+    for(var property in value[0]){
+        if(param == property){
+            if((value[0][param].includes("-"))||(value[0][param].includes("/"))){
+                flag= checkIfFieldIsADate(value[0][param],dateformat)
+            }
+        }
+    }
     for ([key, value] of datamap) {
         var map = new Map();
-        var temp = key;
+        var temp = key;   
         value.forEach(singleParam => {
-            map = groupAction(singleParam, singleParam[param], map, false);
+            map = groupAction(singleParam, singleParam[param], map, flag);
         });
         result.set(temp, map);
     }

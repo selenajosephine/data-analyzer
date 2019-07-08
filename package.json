@@ -26,6 +26,7 @@
   "dependencies": {
     "cucumber": "^5.1.0",
     "fs": "0.0.1-security",
+    "moment": "^2.24.0",
     "readline": "^1.3.0"
   }
 }

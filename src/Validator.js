@@ -18,30 +18,28 @@ var checkFileExists = (file) => {
 
 var askFirstTime = true;
 var checkIfItIsADate = (value, dateformat) => {
+    var flag = false;
     if (value.includes("-") || value.includes("/")) {
-        if (askFirstTime) {
+       // if (askFirstTime) {
             if (value.includes("-") && !value.includes("/") && dateformat.includes("-")) {
-                datetypevalidation(value, "-", dateformat);
+                flag = datetypevalidation(value, "-", dateformat);
             }
             else if (value.includes("/") && !value.includes("-") && dateformat.includes("/")) {
-                datetypevalidation(value, "/", dateformat)
+                flag = datetypevalidation(value, "/", dateformat)
             }
             else {
                 console.log("Check the Date format")
                 process.exit();
             }
             askFirstTime=false;
-        }
-        else {
-
-        }
     }
+    return flag
 }
 
 
 var datetypevalidation = (value, delimiter, dateformat) =>{
     if((value.indexOf(delimiter)==dateformat.indexOf(delimiter)) && (value[1].length == dateformat[1].length) ){
-        console.log("all conditions match")
+        return true;
     }
     else{
         console.log("Check the date format")
