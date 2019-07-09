@@ -44,7 +44,7 @@ const processFile = (file) => {
         }
         var data = titleTemp;
         data.shift();
-        
+
         console.log("Enter the date format used in the file")
         Ask("Press enter if it is not applicable  ").then(response => {
             return new Promise((resolve, reject) => {
@@ -100,7 +100,7 @@ var processNewColumnCount = (data, resolve) => {
             var jsonData = convertToJson(data, title);
             resolve(jsonData);
         })
-        .catch((err)=>{
+        .catch((err) => {
             console.log("Check the value")
             process.exit()
         })
@@ -174,7 +174,7 @@ var columntitlenumbermapping = (response) => {
 // method where all the mapping takes place 
 const mapperFunction = (objectArray, keyValue) => {
     var flag = false;
-    if((objectArray[0][keyValue]).includes("-")||(objectArray[0][keyValue]).includes("/"))
+    if ((objectArray[0][keyValue]).includes("-") || (objectArray[0][keyValue]).includes("/"))
         flag = dateFlag(objectArray[0], keyValue, title, dateformat)
     var map = new Map();
     // group object by key [ group by first group by object]
@@ -192,7 +192,7 @@ var groupAction = (item, keyValue, map, flag) => {
     var key;
     try {
         // checks if it is a date and month formatter
-        flag ? key = yearAndMonthFormatter(item[`${keyValue}`], dateformat) : key = keyValue;
+        flag ? key = yearAndMonthFormatter(keyValue, dateformat) : key = keyValue;
     }
     catch (err) {
         console.log(err)
@@ -215,11 +215,17 @@ var groupByColumnNames = (datamap) => {
     // iterates to keep the grouped data in JSON
     var finalResult = new Array();
     for ([key, value] of result) {
+        var keyValues = value.keys();
         value.forEach(singleParam => {
             if (singleParam != null) {
                 var obj = {};
                 obj[groupby[0]] = key
-                for (var i = 1; i < groupby.length; i++) obj[groupby[i]] = singleParam[0][groupby[i]]
+                for (var i = 1; i < groupby.length; i++) {
+                    obj[groupby[i]] = keyValues.next().value
+                    //Object.keys(singleParam) 
+                    //singleParam[0][groupby[i]]
+                }
+
                 obj["count"] = singleParam.length
                 finalResult.push(obj)
             }
@@ -231,18 +237,18 @@ var groupByColumnNames = (datamap) => {
 // method called when there are more than one groupingby objects
 var iterativelyGroup = (datamap, result, param) => {
     var flag = false;
-    var val  = Array.from(datamap)[0]
+    var val = Array.from(datamap)[0]
     var [key, value] = val;
-    for(var property in value[0]){
-        if(param == property){
-            if((value[0][param].includes("-"))||(value[0][param].includes("/"))){
-                flag= checkIfFieldIsADate(value[0][param],dateformat)
+    for (var property in value[0]) {
+        if (param == property) {
+            if ((value[0][param].includes("-")) || (value[0][param].includes("/"))) {
+                flag = checkIfFieldIsADate(value[0][param], dateformat)
             }
         }
     }
     for ([key, value] of datamap) {
         var map = new Map();
-        var temp = key;   
+        var temp = key;
         value.forEach(singleParam => {
             map = groupAction(singleParam, singleParam[param], map, flag);
         });

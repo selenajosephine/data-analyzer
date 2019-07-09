@@ -1,14 +1,15 @@
 var validator = require('./Validator')
-var moment = require('moment')
+
+var months = ["January", "February", "March", "April", 
+                "May", "June", "July", "August", 
+                "September", "October", "November", "December"];
 
 var yearAndMonthFormatter = (value, dateformat) => {
-    var d = moment(value, dateformat)
-    console.log(d)
-    var formattedDate = new Date(d);
-    console.log(formattedDate);
-    console.log(formattedDate.getMonth()+formattedDate.getUTCFullYear());
-
-    return value;
+    var formattedDate = new Date(value);
+    month = months[formattedDate.getMonth()]
+    year = formattedDate.getFullYear();
+    var newKey = month + " " + year;
+    return newKey;
 }
 
 var dateFlag = (firstRow, key, columns, dateformat) => {
