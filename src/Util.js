@@ -6,8 +6,8 @@ var months = ["January", "February", "March", "April",
 
 var yearAndMonthFormatter = (value, dateformat) => {
     var formattedDate = new Date(value);
-    month = months[formattedDate.getMonth()]
-    year = formattedDate.getFullYear();
+    var month = months[formattedDate.getMonth()]
+    var year = formattedDate.getFullYear();
     var newKey = month + " " + year;
     return newKey;
 }
@@ -27,12 +27,7 @@ var dateFlag = (firstRow, key, columns, dateformat) => {
 
 
 var checkIfFieldIsADate = (value, format) => {
-    if (validator.checkIfItIsADate(value, format)) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return validator.checkIfItIsADate(value, format) ? true:false;
 }
 
 module.exports = {

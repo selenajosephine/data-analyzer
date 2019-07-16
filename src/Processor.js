@@ -33,7 +33,7 @@ const readFile = (path) => {
 const processFile = (file) => {
     try {
         // split based on the first \n for title
-        titleTemp = file.split("\n")
+        var titleTemp = file.split("\n")
 
         if (filename.endsWith(".txt")) {
             // remove white spaces to avoid '\r'
@@ -76,9 +76,10 @@ var convertToJson = (data, title) => {
         else if (filename.endsWith(".csv"))
             oneRow = singleRow.trim().split(",")
         var temp = {}
-        // for every item in the row, map to property of json object
-        for (var i = 0; i < oneRow.length; i++)
-            temp[title[i]] = oneRow[i];
+        if(oneRow!=null)
+            // for every item in the row, map to property of json object
+            for (var i = 0; i < oneRow.length; i++)
+                temp[title[i]] = oneRow[i];
         // add temp to json object
         json.push(temp)
     })
