@@ -1,5 +1,5 @@
 var checkColumnCount = (columncount, titlecolumn) => {
-  return !!((columncount > 0 && columncount < titlecolumn.length + 1))
+  return (columncount > 0 && columncount < titlecolumn.length + 1)
 }
 
 var checkFileExists = (file) => {
