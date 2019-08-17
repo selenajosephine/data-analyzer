@@ -50,10 +50,33 @@ describe("test validation in application",()=>{
         expect(flag).toBeTruthy();
     })
 
-    // it("date format mm-dd-yyyy does not match",()=>{
-    //     var dateFormat = "mm-dd-yyyy";
-    //     var value = "1995-09-14";
-    //     var flag = validator.checkIfItIsADate(dateFormat,value);
-    //     expect(flag).toBeFalsy();
-    // })
+    it("date format mm-dd-yyyy does not match",()=>{
+        var dateFormat = "mm-dd-yyyy";
+        var value = "1995-09-14";
+        // spy on process exit line
+        jest.spyOn(process, 'exit').mockImplementation(() => {});
+        var flag = validator.checkIfItIsADate(dateFormat,value);
+        expect(flag).toBeFalsy();
+    })
+
+    it("date format is mm-dd-yyy date is mm/dd/yyyy",()=>{
+        var dateFormat = "mm-dd-yyyy";
+        var value = "09/14/1995";
+        // spy on process exit line
+        jest.spyOn(process, 'exit').mockImplementation(() => {});
+        var flag = validator.checkIfItIsADate(dateFormat,value);
+        expect(flag).toBeFalsy();
+    })
+
+    it("date format is mm/dd/yyyy date is mm-dd-yyyy",()=>{
+        var dateFormat = "mm/dd/yyyy";
+        var value = "09-14-1995";
+        // spy on process exit line
+        jest.spyOn(process, 'exit').mockImplementation(() => {});
+        var flag = validator.checkIfItIsADate(dateFormat,value);
+        expect(flag).toBeFalsy();
+    })
+
+    
+
 })
